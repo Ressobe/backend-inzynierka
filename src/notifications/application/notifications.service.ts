@@ -18,21 +18,34 @@ export class NotificationsService {
     );
   }
 
-  async sendStatusChanged(to: string, name: string, status: ReservationStatus) {
-    const statusText =
-      status === ReservationStatus.ACCEPTED
-        ? 'została zaakceptowana'
-        : 'została odrzucona';
+  async sendReservationStatusUpdated(
+    toEmail: string,
+    toName: string,
+    status: ReservationStatus,
+  ) {
+    let subject: string;
+    let template: string;
+    let context: any;
 
-    await this.mailer.sendMail(
-      to,
-      'Aktualizacja rezerwacji',
-      'reservation-status-changed',
-      {
-        name,
-        statusText,
-      },
-    );
+    switch (status) {
+      case ReservationStatus.ACCEPTED:
+        subject = 'Rezerwacja została potwierdzona';
+        template = 'reservation-confirmed';
+        context = { name: toName };
+        break;
+      case ReservationStatus.REJECTED || ReservationStatus.CANCELLED:
+        subject = 'Rezerwacja została odrzucona';
+        template = 'reservation-rejected';
+        context = { name: toName };
+        break;
+      default:
+        subject = `Status rezerwacji zmieniony na: ${status}`;
+        template = 'reservation-status-updated';
+        context = { name: toName, status: status };
+        break;
+    }
+
+    await this.mailer.sendMail(toEmail, subject, template, context);
   }
 
   async sendReservationCancelled(to: string, name: string) {

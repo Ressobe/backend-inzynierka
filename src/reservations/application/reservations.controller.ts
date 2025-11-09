@@ -19,7 +19,7 @@ import {
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
-import { ReservationResponseDto } from '../../admin/application/dtos/reservation.response.dto'; // Reużywamy DTO z admin
+import { ReservationResponseDto } from '../../admin/application/dtos/reservation.response.dto';
 
 @ApiTags('Reservations')
 @Controller('reservations')

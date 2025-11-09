@@ -72,6 +72,7 @@ export class RestaurantsController {
       name: restaurant.name,
       city: restaurant.city,
       address: restaurant.address,
+      rating: restaurant.rating,
       openHours: mappedOpenHours,
     };
   }

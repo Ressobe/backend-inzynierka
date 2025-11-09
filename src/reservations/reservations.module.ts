@@ -5,9 +5,13 @@ import { ReservationsController } from './application/reservations.controller';
 import { Reservation } from './domain/reservation.entity';
 import { Restaurant } from 'src/restaurants/domain/restaurant.entity';
 import { ReservationsValidatorService } from './application/reservations-validator.service';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reservation, Restaurant])],
+  imports: [
+    TypeOrmModule.forFeature([Reservation, Restaurant]),
+    NotificationsModule,
+  ],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsValidatorService],
 })

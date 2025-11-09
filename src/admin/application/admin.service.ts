@@ -63,7 +63,7 @@ export class AdminService {
     reservation.status = newStatus;
     await this.reservationRepo.save(reservation);
 
-    await this.notifications.sendStatusChanged(
+    await this.notifications.sendReservationStatusUpdated(
       reservation.email,
       reservation.name,
       newStatus,
