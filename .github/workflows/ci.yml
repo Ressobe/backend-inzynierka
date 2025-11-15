@@ -13,13 +13,22 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm ci
-      - run: npm test
-      - run: npm run test:e2e
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Unit Tests
+        run: npm test
+
+      - name: Run E2E Tests
+        run: npm run test:e2e
         env:
           FRONTEND_URL: http://localhost:3000
 
@@ -28,26 +37,40 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm ci
-      - run: npm run build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
 
   docker-build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ressobe
+          registry: https://ghcr.io
+          username: Ressobe
           password: ${{ secrets.GHCR_TOKEN }}
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
         with:
           context: .
           dockerfile: Dockerfile
@@ -61,13 +84,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-build
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ressobe
           password: ${{ secrets.GHCR_TOKEN }}
-      - uses: appleboy/ssh-action@v1.1.0
+
+      - name: Ensure secrets exist on VPS
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
@@ -77,11 +105,22 @@ jobs:
             echo -n "${{ secrets.DB_USER }}" | docker secret create tavoo_db_user - 2>/dev/null || true
             echo -n "${{ secrets.DB_PASS }}" | docker secret create tavoo_db_pass - 2>/dev/null || true
             echo -n "${{ secrets.DB_NAME }}" | docker secret create tavoo_db_name - 2>/dev/null || true
-      - uses: appleboy/ssh-action@v1.1.0
+
+      - name: Upload docker-stack.yml to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.REMOTE_PRIVATE_KEY }}
+          source: docker-stack.yml
+          target: '/home/${{ secrets.REMOTE_USER }}/tavoo'
+
+      - name: Deploy Tavoo stack
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.REMOTE_USER }}/tavoo
-            docker stack deploy --with-registry-auth -c /home/${{ secrets.REMOTE_USER }}/tavoo/docker-stack.yml ${{ secrets.STACK_NAME }}
+            docker stack deploy --with-registry-auth -c docker-stack.yml ${{ secrets.STACK_NAME }}

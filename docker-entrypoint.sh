@@ -14,6 +14,9 @@ if [ -f /run/secrets/tavoo_db_name ]; then
   export DB_NAME=$(cat /run/secrets/tavoo_db_name)
 fi
 
+export POSTGRES_USER=$(cat /run/secrets/tavoo_db_user)
+export POSTGRES_DB=$(cat /run/secrets/tavoo_db_name)
+
 # Wait for the PostgreSQL service to be ready
 echo "Waiting for PostgreSQL at $DB_HOST:$DB_PORT..."
 /usr/local/bin/wait-for-it.sh "$DB_HOST:$DB_PORT" --timeout=60 -- echo "PostgreSQL is up - executing command"
