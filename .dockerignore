@@ -3,5 +3,3 @@ test
 .gitignore
 .git
 .prettierrc
-Dockerfile.dev
-Dockerfile.prod
