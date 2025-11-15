@@ -84,4 +84,4 @@ jobs:
           key: ${{ secrets.REMOTE_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.REMOTE_USER }}/tavoo
-            docker stack deploy -c /home/${{ secrets.REMOTE_USER }}/tavoo/docker-stack.yml ${{ secrets.STACK_NAME }}
+            docker stack deploy --with-registry-auth -c /home/${{ secrets.REMOTE_USER }}/tavoo/docker-stack.yml ${{ secrets.STACK_NAME }}
