@@ -14,8 +14,10 @@ services:
       - tavoo_db_name
     ports:
       - '5432:5432'
+    networks:
+      - tavoo_net
     volumes:
-      - tavoo_postgres_data:/var/lib/postgresql/data
+      - tavoo_postgres_data:/var/lib/postgresql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
@@ -61,3 +63,11 @@ networks:
 
 volumes:
   tavoo_postgres_data:
+
+secrets:
+  tavoo_db_user:
+    external: true
+  tavoo_db_pass:
+    external: true
+  tavoo_db_name:
+    external: true
