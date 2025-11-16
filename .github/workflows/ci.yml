@@ -108,8 +108,10 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_PRIVATE_KEY }}
-          source: "backend-praca-inzynierska/docker-stack.yml"
+          source: "docker-stack.yml"
           target: '/home/${{ secrets.REMOTE_USER }}/tavoo'
+          overwrite: true
+            
       - name: Debug repo contents
         run: |
           echo "Current directory:"
