@@ -19,7 +19,7 @@ services:
     volumes:
       - tavoo_postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test: ['CMD-SHELL', 'pg_isready -U $DB_USER -d $DB_NAME']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -39,6 +39,8 @@ services:
       - tavoo_db_name
     networks:
       - tavoo_net
+    ports:
+      - '3001:3001'
     deploy:
       replicas: 1
       restart_policy:
